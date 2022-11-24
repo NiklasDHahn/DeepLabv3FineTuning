@@ -97,3 +97,35 @@ def get_dataloader_single_folder(data_dir: str,
         for x in ['Train', 'Test']
     }
     return dataloaders
+
+
+def get_dataloader_single_folder_val(data_dir: str,
+                                    image_folder: str = 'Images',
+                                    mask_folder: str = 'Masks',
+                                    batch_size: int = 1):
+    """Create validation dataloader from a single directory containing
+    the image and mask folders.
+
+    Args:
+        data_dir (str): Data directory path or root
+        image_folder (str, optional): Image folder name. Defaults to 'Images'.
+        mask_folder (str, optional): Mask folder name. Defaults to 'Masks'.
+
+    Returns:
+        dataloader: Returns dataloader Validation dataloader.
+    """
+    data_transforms = transforms.Compose([transforms.ToTensor()])
+
+    image_dataset = SegmentationDataset(data_dir,
+                               image_folder=image_folder,
+                               mask_folder=mask_folder,
+                               seed=100,
+                               transforms=data_transforms)
+
+    dataloader = DataLoader(image_dataset,
+                      batch_size=batch_size,
+                      shuffle=True,
+                      num_workers=8)
+
+
+    return dataloader

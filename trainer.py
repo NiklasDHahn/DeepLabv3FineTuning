@@ -24,6 +24,7 @@ def train_model(model, criterion, dataloaders, optimizer, metrics, bpath,
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
 
+    # scaler = torch.cuda.amp.GradScaler()
     for epoch in range(1, num_epochs + 1):
         print('Epoch {}/{}'.format(epoch, num_epochs))
         print('-' * 10)
@@ -46,6 +47,7 @@ def train_model(model, criterion, dataloaders, optimizer, metrics, bpath,
 
                 # track history if only in train
                 with torch.set_grad_enabled(phase == 'Train'):
+                    # with torch.autocast(device_type='cuda', dtype=torch.float16):
                     outputs = model(inputs)
                     loss = criterion(outputs['out'], masks)
                     y_pred = outputs['out'].data.cpu().numpy().ravel()
@@ -61,6 +63,10 @@ def train_model(model, criterion, dataloaders, optimizer, metrics, bpath,
 
                     # backward + optimize only if in training phase
                     if phase == 'Train':
+                        # scaler.scale(loss).backward()
+                        # scaler.step(optimizer)
+                        # scaler.update()
+                        # optimizer.zero_grad()
                         loss.backward()
                         optimizer.step()
             batchsummary['epoch'] = epoch
