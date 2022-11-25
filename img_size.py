@@ -40,7 +40,7 @@ def add_padding(dir: list, width: int, height: int):
 
 
 def reduce_size(dir:list):
-    scale_factor = 0.75
+    scale_factor = 0.375
     for img_path in dir:
         print(f'Processing {img_path}')
         img = cv2.imread(img_path)
