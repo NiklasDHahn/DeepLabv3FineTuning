@@ -26,10 +26,15 @@ from trainer import train_model
               default=4,
               type=int,
               help="Specify the batch size for the dataloader.")
-def main(data_directory, exp_directory, epochs, batch_size):
-    # Create the deeplabv3 resnet101 model which is pretrained on a subset
-    # of COCO train2017, on the 20 categories that are present in the Pascal VOC dataset.
-    model = createDeepLabv3()
+@click.option("--model_file", required=False, help="Specify the model file (.pt) or leave empty for default config.")
+def main(data_directory, exp_directory, epochs, batch_size, model_file):
+    # Create the deeplabv3 resnet101 model
+    if model_file is None:
+        # Pretrained model on subset of COCO train2017
+        model = createDeepLabv3()
+    else:
+        # Custom weights
+        model = torch.load(model_file)
     model.train()
     data_directory = Path(data_directory)
     # Create the experiment directory if not present
