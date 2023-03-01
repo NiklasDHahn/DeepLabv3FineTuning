@@ -62,3 +62,7 @@ target/
 
 CFExp/*
 EETExp/
+
+val_results/
+
+*.bat
