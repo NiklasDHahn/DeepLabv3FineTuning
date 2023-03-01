@@ -48,27 +48,33 @@ def train_model(model, criterion, dataloaders, optimizer, metrics, bpath,
                 # track history if only in train
                 with torch.set_grad_enabled(phase == 'Train'):
                     # with torch.autocast(device_type='cuda', dtype=torch.float16):
-                    outputs = model(inputs)
-                    loss = criterion(outputs['out'], masks)
-                    y_pred = outputs['out'].data.cpu().numpy().ravel()
-                    y_true = masks.data.cpu().numpy().ravel()
-                    for name, metric in metrics.items():
-                        if name == 'f1_score':
-                            # Use a classification threshold of 0.1
-                            batchsummary[f'{phase}_{name}'].append(
-                                metric(y_true > 0, y_pred > 0.1))
-                        else:
-                            batchsummary[f'{phase}_{name}'].append(
-                                metric(y_true.astype('uint8'), y_pred))
+                    try:
+                        outputs = model(inputs)
+                        loss = criterion(outputs['out'], masks)
+                        y_pred = outputs['out'].data.cpu().numpy().ravel()
+                        y_true = masks.data.cpu().numpy().ravel()
+                        for name, metric in metrics.items():
+                            if name == 'f1_score':
+                                # Use a classification threshold of 0.1
+                                batchsummary[f'{phase}_{name}'].append(
+                                    metric(y_true > 0, y_pred > 0.1, zero_division=0))
+                            else:
+                                try:
+                                    batchsummary[f'{phase}_{name}'].append(
+                                        metric(y_true.astype('uint8'), y_pred))
+                                except:
+                                    pass
 
-                    # backward + optimize only if in training phase
-                    if phase == 'Train':
-                        # scaler.scale(loss).backward()
-                        # scaler.step(optimizer)
-                        # scaler.update()
-                        # optimizer.zero_grad()
-                        loss.backward()
-                        optimizer.step()
+                        # backward + optimize only if in training phase
+                        if phase == 'Train':
+                            # scaler.scale(loss).backward()
+                            # scaler.step(optimizer)
+                            # scaler.update()
+                            # optimizer.zero_grad()
+                            loss.backward()
+                            optimizer.step()
+                    except:
+                        pass
             batchsummary['epoch'] = epoch
             epoch_loss = loss
             batchsummary[f'{phase}_loss'] = epoch_loss.item()
